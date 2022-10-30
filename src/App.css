@@ -129,3 +129,7 @@
 .connected-container button {
   height: 50px;
 }
+
+.white-text {
+  color: white;
+}

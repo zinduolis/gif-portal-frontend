@@ -1,17 +1,23 @@
 import React, { useEffect, useState } from 'react';
+import { Connection, clusterApiUrl, PublicKey } from '@solana/web3.js';
+import { Program, Provider, web3 } from '@project-serum/anchor';
+import kp from './keypair.json';
 import twitterLogo from './assets/twitter-logo.svg';
 import './App.css';
+
+const { SystemProgram } = web3;
+const arr = Object.values(kp._keypair.secretKey);
+const secret = new Uint8Array(arr);
+const baseAccount = web3.Keypair.fromSecretKey(secret);
+const programID = new PublicKey("2qtD2meLckv1sYRU6Hv36SFL1bVc3VPK3FvGPpf97X7E");
+const network = clusterApiUrl('devnet');
+const opts = {
+  preflightCommitment: "processed"
+}
 
 // TODO: update with my website details
 const TWITTER_HANDLE = '_buildspace';
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
-
-const TEST_GIFS = [
-	'https://media1.giphy.com/media/5nh8FKSRtxFEyuajGc/giphy.gif?cid=790b7611e4ebde1cb369aa4f7808a7f6f43ee81fc02de82a&rid=giphy.gif&ct=g',
-	'https://media2.giphy.com/media/12VL9VvZ3ErqiQ/giphy.gif?cid=790b7611371a04aa044acd4e7d01e8ff50d8b9138e033d49&rid=giphy.gif&ct=g',
-	'https://media2.giphy.com/media/l0HlxgojaVTyM7dNC/giphy.gif?cid=790b7611c831e93ad94356173229a0a7b17c676a48b3ce5a&rid=giphy.gif&ct=g',
-	'https://media3.giphy.com/media/xX1dwuf8LN9YI/giphy.gif?cid=790b7611055caf52df1794fe7d308e0d309c64b9d0b11185&rid=giphy.gif&ct=g'
-]
 
 const App = () => {
   const [walletAddress, setWalletAddresss] = useState(null);
@@ -40,18 +46,61 @@ const App = () => {
   };
 
   const sendGif = async () => {
-    if (inputValue.length > 0) {
-      console.log('Gif link: ', inputValue);
-      setGifList([...gifList, inputValue]);
-      setInputValue('');
-    } else {
-      console.log('Empty input. Try again.');
+    if (inputValue.length === 0) {
+      console.log("No gif link given!");
+      return
+    }
+    setInputValue("");
+    console.log("Gif link: ", inputValue);
+    try {
+      const provider = getProvider();
+      const program = await getProgram();
+
+      await program.rpc.addGif(inputValue, {
+        accounts: {
+          baseAccount: baseAccount.publicKey,
+          user: provider.wallet.publicKey,
+        },
+      });
+      console.log("GIF successfully sent to program: ", inputValue)
+      await getGifList();
+    } catch (error) {
+      console.log("Error sending GIF: ", error)
     }
   };
 
   const onInputChange = (event) => {
     const { value } = event.target;
     setInputValue(value);
+  };
+
+  const getProvider = () => {
+    const connection = new Connection(network, opts.preflightCommitment);
+    const provider = new Provider(
+      connection, window.solana, opts.preflightCommitment,
+    );
+    return provider;
+  };
+
+  const createGifAccount = async () => {
+    try {
+      const provider = getProvider();
+      const program = await getProgram();
+
+      console.log("ping");
+      await program.rpc.startStuffOff({
+        accounts: {
+          baseAccount: baseAccount.publicKey,
+          user: provider.wallet.publicKey,
+          systemProgram: SystemProgram.programId,
+        },
+        signers: [baseAccount]
+      });
+      console.log("Created a new BaseAccount w/ address: ", baseAccount.publicKey.toString());
+      await getGifList();
+    } catch (error) {
+      console.log("Error creating BaseAccount account: ", error);
+    }
   };
 
   const renderNotConnectedContainer = () => {
@@ -64,30 +113,59 @@ const App = () => {
   };
 
   const renderConnectedContainer = () => {
-    return(
-    <div className='connected-container'>
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          sendGif();
-        }} >
-          <input 
-            type="text" 
-            placeholder="Enter gif link"
-            value={inputValue}
-            onChange={onInputChange} 
-          />
-          <button type="submit" className='cta-button submit-gif-button'>Submit</button>
-        </form>
-      <div className='gif-grid'>
-        {gifList.map(gif => (
-          <div className='gif-item' key={gif}>
-            <img src={gif} alt={gif} />
+    if (gifList === null) {
+      return (
+        <div className='connected-container'>
+          <button className='cta-button submit-gif-button' onClick={createGifAccount}>
+            Do One-Time Initialization For GIF Program Account
+          </button>
+        </div>
+      )
+    } else {
+      return(
+        <div className='connected-container'>
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              sendGif();
+            }} >
+              <input 
+                type="text" 
+                placeholder="Enter gif link"
+                value={inputValue}
+                onChange={onInputChange} 
+              />
+              <button type="submit" className='cta-button submit-gif-button'>Submit</button>
+            </form>
+          <div className='gif-grid'>
+            {gifList.map((item, index) => (
+              <div className='gif-item' key={index}>
+                <img src={item.gifLink} alt=""/>
+                <p className="white-text">Owner:{" " + item.userAddress.toString()}</p>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-    </div>)
+        </div>)
+    }
   };
+
+  const getProgram = async () => {
+    const idl = await Program.fetchIdl(programID, getProvider());
+    return new Program(idl, programID, getProvider());
+  };
+
+  const getGifList = async () => {
+    try {
+      const program = await getProgram();
+      const account = await program.account.baseAccount.fetch(baseAccount.publicKey);
+
+      console.log("Got the account: ", account);
+      setGifList(account.gifList);
+    } catch (error) {
+      console.log("Error in getGifList: ", error);
+      setGifList(null);
+    }
+  }
 
   useEffect(() => {
     const onLoad = async () => {
@@ -98,13 +176,11 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    const onLoad = async () => {
-      console.log('Fetching GIF list...');
-      //Call SOL program here
-      setGifList(TEST_GIFS);
-    };
-    window.addEventListener('load', onLoad);
-    return () => window.removeEventListener('load', onLoad);
+    if (walletAddress) {
+      console.log("Fetching GIF list...");
+      getGifList();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletAddress]);
 
   return (
