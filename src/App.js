@@ -9,7 +9,7 @@ const { SystemProgram } = web3;
 const arr = Object.values(kp._keypair.secretKey);
 const secret = new Uint8Array(arr);
 const baseAccount = web3.Keypair.fromSecretKey(secret);
-const programID = new PublicKey("2qtD2meLckv1sYRU6Hv36SFL1bVc3VPK3FvGPpf97X7E");
+const programID = new PublicKey("7nZERk2LZF1bJDQzV4H2VaoYxLQ5uivr7xagMVvsuQ8X");
 const network = clusterApiUrl('devnet');
 const opts = {
   preflightCommitment: "processed"
@@ -142,6 +142,7 @@ const App = () => {
               <div className='gif-item' key={index}>
                 <img src={item.gifLink} alt=""/>
                 <p className="white-text">Owner:{" " + item.userAddress.toString()}</p>
+                <p className='white-text'>Votes:{" " + item.votes.toString()}</p>
               </div>
             ))}
           </div>
