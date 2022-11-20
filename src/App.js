@@ -69,6 +69,24 @@ const App = () => {
     }
   };
 
+  const vote = async (gifId) => {
+    try {
+      const provider = getProvider();
+      const program = await getProgram();
+
+      await program.rpc.vote(gifId, {
+        accounts: {
+          baseAccount: baseAccount.publicKey,
+          user: provider.wallet.publicKey,
+        },
+      });
+      console.log("Successful voting on: ", gifId)
+      await getGifList();
+    } catch (error) {
+      console.log("Error voting: ", error)
+    }
+  };
+
   const onInputChange = (event) => {
     const { value } = event.target;
     setInputValue(value);
@@ -143,6 +161,7 @@ const App = () => {
                 <img src={item.gifLink} alt=""/>
                 <p className="white-text">Owner:{" " + item.userAddress.toString()}</p>
                 <p className='white-text'>Votes:{" " + item.votes.toString()}</p>
+                <button key="vote" className='cta-button submit-gif-button' onClick={() => {vote(item.gifLink)}}>Vote</button>
               </div>
             ))}
           </div>
