@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Connection, clusterApiUrl, PublicKey } from '@solana/web3.js';
+import { Connection, clusterApiUrl, PublicKey, Transaction } from '@solana/web3.js';
 import { Program, Provider, web3 } from '@project-serum/anchor';
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import kp from './keypair.json';
 import twitterLogo from './assets/twitter-logo.svg';
 import './App.css';
@@ -23,6 +24,9 @@ const App = () => {
   const [walletAddress, setWalletAddresss] = useState(null);
   const [inputValue, setInputValue] = useState('');
   const [gifList, setGifList] = useState([]);
+
+  // const { connection } = useConnection();
+  // const { publicKey, sendTransaction } = useWallet()
 
   const checkIfWalletIsConnected = async () => {
     if (window?.solana?.isPhantom) {
@@ -86,6 +90,29 @@ const App = () => {
       console.log("Error voting: ", error)
     }
   };
+
+  
+
+  // const sendSol = async (to) => {
+
+  //     if (!connection || !publicKey) { return }
+
+  //     const receiver = new PublicKey(to);
+  //     const transaction = new Transaction();
+  //     const instruction = SystemProgram.transfer({
+  //             fromPubkey: publicKey,
+  //             toPubkey: receiver,
+  //             lamports: 10000000,
+  //     });
+  //     transaction.add(instruction);
+  //     sendTransaction(transaction, connection).then(sig => {
+  //     console.log(
+  //         `Transfer tx: https://explorer.solana.com/tx/${sig}?cluster=devnet`
+  //     )
+  //     console.log(`Sent SOL to ${to}`)
+  //     });    
+  // <button key="vote" className='cta-button submit-gif-button' onClick={() => {sendSol(item.userAddress)}}>Tip</button>
+  // }
 
   const onInputChange = (event) => {
     const { value } = event.target;
@@ -162,6 +189,7 @@ const App = () => {
                 <p className="white-text">Owner:{" " + item.userAddress.toString()}</p>
                 <p className='white-text'>Votes:{" " + item.votes.toString()}</p>
                 <button key="vote" className='cta-button submit-gif-button' onClick={() => {vote(item.gifLink)}}>Vote</button>
+                
               </div>
             ))}
           </div>
