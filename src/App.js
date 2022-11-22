@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Connection, clusterApiUrl, PublicKey, Transaction } from '@solana/web3.js';
 import { Program, Provider, web3 } from '@project-serum/anchor';
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+// import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import kp from './keypair.json';
 import twitterLogo from './assets/twitter-logo.svg';
 import './App.css';
@@ -26,7 +26,7 @@ const App = () => {
   const [gifList, setGifList] = useState([]);
 
   // const { connection } = useConnection();
-  // const { publicKey, sendTransaction } = useWallet()
+  // const { publicKey, sendTransaction } = useWallet();
 
   const checkIfWalletIsConnected = async () => {
     if (window?.solana?.isPhantom) {
@@ -93,26 +93,92 @@ const App = () => {
 
   
 
-  // const sendSol = async (to) => {
+  const sendSol = async (to) => {
 
-  //     if (!connection || !publicKey) { return }
+    try {
+      
 
-  //     const receiver = new PublicKey(to);
-  //     const transaction = new Transaction();
-  //     const instruction = SystemProgram.transfer({
-  //             fromPubkey: publicKey,
-  //             toPubkey: receiver,
-  //             lamports: 10000000,
-  //     });
-  //     transaction.add(instruction);
-  //     sendTransaction(transaction, connection).then(sig => {
-  //     console.log(
-  //         `Transfer tx: https://explorer.solana.com/tx/${sig}?cluster=devnet`
-  //     )
-  //     console.log(`Sent SOL to ${to}`)
-  //     });    
-  // <button key="vote" className='cta-button submit-gif-button' onClick={() => {sendSol(item.userAddress)}}>Tip</button>
-  // }
+      // if (!connection || !publicKey) { return }
+
+      // const receiver = new PublicKey(to);
+      // const transaction = new Transaction();
+      // const instruction = SystemProgram.transfer({
+      //         fromPubkey: publicKey,
+      //         toPubkey: receiver,
+      //         lamports: 10000000,
+      // });
+      // transaction.add(instruction);
+      // sendTransaction(transaction, connection).then(sig => {
+      // console.log(
+      //     `Transfer tx: https://explorer.solana.com/tx/${sig}?cluster=devnet`
+      // )
+      // console.log(`Sent SOL to ${to}`)
+      // }); 
+      
+     // Create a TX object
+     const receiver = new PublicKey(to);
+     // Create a TX object
+     
+
+    // Create a TX object
+  //   let transaction = new Transaction({
+  //     feePayer: props.provider.publicKey,
+  //     recentBlockhash: (await connection.current.getRecentBlockhash()).blockhash
+  // });
+
+     const provider = getProvider();
+     const connection = new Connection(network, opts.preflightCommitment);
+     
+     let transaction = new Transaction();
+     
+     console.log("sendSol - connection: ", connection, " pubkey: ", provider.wallet.publicKey,);
+     console.log(connection._blockhashInfo.latestBlockhash);
+
+      // Add instructions to the tx
+     transaction.add(
+          SystemProgram.transfer({
+          fromPubkey: provider.wallet.publicKey,
+          toPubkey: receiver,
+          lamports: 10000000,
+          })
+      );
+  
+    // Get the TX signed by the wallet (signature stored in-situ)
+      console.log(provider);
+      let blockhash = (await connection.getLatestBlockhash("finalized")).blockhash;
+      transaction.recentBlockhash = blockhash;
+      transaction.feePayer = provider.wallet.publicKey;
+      console.log("recentBlockhash: ", blockhash);
+      console.log("feePayer: ", transaction.feePayer);
+      await provider.wallet.signTransaction(transaction);
+
+    // connection.sendTransaction(transaction, connection).then(sig => {
+    //   console.log(
+    //       `Transfer tx: https://explorer.solana.com/tx/${sig}?cluster=devnet`
+    //   )
+    //   console.log(`Sent SOL to ${to}`)
+    // }); 
+
+    // Send the TX to the network
+    connection.sendRawTransaction(transaction.serialize())
+    .then(id => {
+      console.log(`Transaction ID: ${id}`);
+    })
+      // setTxid(id);
+      // connection.confirmTransaction(id)
+      // .then((confirmation) => {
+      //     console.log(`Confirmation slot: ${confirmation.context.slot}`);
+      //     // setSlot(confirmation.context.slot);
+      //     // connection.current.getBalance(props.provider.publicKey).then(setMyBalance);
+      //     // connection.current.getBalance(new PublicKey(destAddr)).then(setRxBalance);
+      // });
+
+  // })
+
+    } catch (error) {
+      console.log("Error sending SOL: ", error);
+    }
+  }
 
   const onInputChange = (event) => {
     const { value } = event.target;
@@ -189,7 +255,8 @@ const App = () => {
                 <p className="white-text">Owner:{" " + item.userAddress.toString()}</p>
                 <p className='white-text'>Votes:{" " + item.votes.toString()}</p>
                 <button key="vote" className='cta-button submit-gif-button' onClick={() => {vote(item.gifLink)}}>Vote</button>
-                
+                <p className='white-text'></p>
+                <button key="tip" className='cta-button submit-gif-button' onClick={() => {sendSol(item.userAddress)}}>Tip</button>
               </div>
             ))}
           </div>
