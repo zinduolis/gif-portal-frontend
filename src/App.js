@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Connection, clusterApiUrl, PublicKey, Transaction } from '@solana/web3.js';
 import { Program, Provider, web3 } from '@project-serum/anchor';
-// import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import kp from './keypair.json';
-import twitterLogo from './assets/twitter-logo.svg';
+import profilepic from './assets/profilepic.webp';
 import './App.css';
 
 const { SystemProgram } = web3;
@@ -16,17 +15,12 @@ const opts = {
   preflightCommitment: "processed"
 }
 
-// TODO: update with my website details
-const TWITTER_HANDLE = '_buildspace';
-const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
+const PERSONAL_LINK = 'https://redgraz.vercel.app/';
 
 const App = () => {
   const [walletAddress, setWalletAddresss] = useState(null);
   const [inputValue, setInputValue] = useState('');
   const [gifList, setGifList] = useState([]);
-
-  // const { connection } = useConnection();
-  // const { publicKey, sendTransaction } = useWallet();
 
   const checkIfWalletIsConnected = async () => {
     if (window?.solana?.isPhantom) {
@@ -96,43 +90,10 @@ const App = () => {
   const sendSol = async (to) => {
 
     try {
-      
-
-      // if (!connection || !publicKey) { return }
-
-      // const receiver = new PublicKey(to);
-      // const transaction = new Transaction();
-      // const instruction = SystemProgram.transfer({
-      //         fromPubkey: publicKey,
-      //         toPubkey: receiver,
-      //         lamports: 10000000,
-      // });
-      // transaction.add(instruction);
-      // sendTransaction(transaction, connection).then(sig => {
-      // console.log(
-      //     `Transfer tx: https://explorer.solana.com/tx/${sig}?cluster=devnet`
-      // )
-      // console.log(`Sent SOL to ${to}`)
-      // }); 
-      
-     // Create a TX object
      const receiver = new PublicKey(to);
-     // Create a TX object
-     
-
-    // Create a TX object
-  //   let transaction = new Transaction({
-  //     feePayer: props.provider.publicKey,
-  //     recentBlockhash: (await connection.current.getRecentBlockhash()).blockhash
-  // });
-
      const provider = getProvider();
      const connection = new Connection(network, opts.preflightCommitment);
-     
      let transaction = new Transaction();
-     
-     console.log("sendSol - connection: ", connection, " pubkey: ", provider.wallet.publicKey,);
-     console.log(connection._blockhashInfo.latestBlockhash);
 
       // Add instructions to the tx
      transaction.add(
@@ -143,38 +104,21 @@ const App = () => {
           })
       );
   
-    // Get the TX signed by the wallet (signature stored in-situ)
-      console.log(provider);
+      // Get the TX signed by the wallet (signature stored in-situ)
       let blockhash = (await connection.getLatestBlockhash("finalized")).blockhash;
       transaction.recentBlockhash = blockhash;
       transaction.feePayer = provider.wallet.publicKey;
-      console.log("recentBlockhash: ", blockhash);
-      console.log("feePayer: ", transaction.feePayer);
       await provider.wallet.signTransaction(transaction);
 
-    // connection.sendTransaction(transaction, connection).then(sig => {
-    //   console.log(
-    //       `Transfer tx: https://explorer.solana.com/tx/${sig}?cluster=devnet`
-    //   )
-    //   console.log(`Sent SOL to ${to}`)
-    // }); 
-
-    // Send the TX to the network
-    connection.sendRawTransaction(transaction.serialize())
-    .then(id => {
-      console.log(`Transaction ID: ${id}`);
-    })
-      // setTxid(id);
-      // connection.confirmTransaction(id)
-      // .then((confirmation) => {
-      //     console.log(`Confirmation slot: ${confirmation.context.slot}`);
-      //     // setSlot(confirmation.context.slot);
-      //     // connection.current.getBalance(props.provider.publicKey).then(setMyBalance);
-      //     // connection.current.getBalance(new PublicKey(destAddr)).then(setRxBalance);
-      // });
-
-  // })
-
+      // Send the TX to the network
+      connection.sendRawTransaction(transaction.serialize())
+      .then(id => {
+        console.log(`Transfer tx: https://explorer.solana.com/tx/${id}?cluster=devnet`);
+        connection.confirmTransaction(id)
+        .then((confirmation) => {
+            console.log(`Confirmation slot: ${confirmation.context.slot}`);
+        });
+      });
     } catch (error) {
       console.log("Error sending SOL: ", error);
     }
@@ -256,7 +200,7 @@ const App = () => {
                 <p className='white-text'>Votes:{" " + item.votes.toString()}</p>
                 <button key="vote" className='cta-button submit-gif-button' onClick={() => {vote(item.gifLink)}}>Vote</button>
                 <p className='white-text'></p>
-                <button key="tip" className='cta-button submit-gif-button' onClick={() => {sendSol(item.userAddress)}}>Tip</button>
+                <button key="tip" className='cta-button submit-gif-button' onClick={() => {sendSol(item.userAddress)}}>Tip 0.01 SOL</button>
               </div>
             ))}
           </div>
@@ -309,13 +253,13 @@ const App = () => {
           {!walletAddress ? renderNotConnectedContainer() : renderConnectedContainer()}
         </div>
         <div className="footer-container">
-          <img alt="Twitter Logo" className="twitter-logo" src={twitterLogo} />
+          <img alt="Twitter Logo" className="twitter-logo" src={profilepic} />
           <a
             className="footer-text"
-            href={TWITTER_LINK}
+            href={PERSONAL_LINK}
             target="_blank"
             rel="noreferrer"
-          >{`built on @${TWITTER_HANDLE}`}</a>
+          >built by redgraz</a>
         </div>
       </div>
     </div>
