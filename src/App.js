@@ -1,4 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 import { Connection, clusterApiUrl, PublicKey, Transaction } from '@solana/web3.js';
 import { Program, Provider, web3 } from '@project-serum/anchor';
 import kp from './keypair.json';
@@ -194,14 +200,36 @@ const App = () => {
             </form>
           <div className='gif-grid'>
             {gifList.map((item, index) => (
-              <div className='gif-item' key={index}>
-                <img src={item.gifLink} alt=""/>
-                <p className="white-text">Owner:{" " + item.userAddress.toString()}</p>
-                <p className='white-text'>Votes:{" " + item.votes.toString()}</p>
-                <button key="vote" className='cta-button submit-gif-button' onClick={() => {vote(item.gifLink)}}>Vote</button>
-                <p className='white-text'></p>
-                <button key="tip" className='cta-button submit-gif-button' onClick={() => {sendSol(item.userAddress)}}>Tip 0.01 SOL</button>
-              </div>
+              // <div className='gif-item' key={index}>
+              //   <img src={item.gifLink} alt=""/>
+              //   <p className="white-text">Owner:{" " + item.userAddress.toString()}</p>
+              //   <p className='white-text'>Votes:{" " + item.votes.toString()}</p>
+              //   <button key="vote" className='cta-button submit-gif-button' onClick={() => {vote(item.gifLink)}}>Vote</button>
+              //   <p className='white-text'></p>
+              //   <button key="tip" className='cta-button submit-gif-button' onClick={() => {sendSol(item.userAddress)}}>Tip 0.01 SOL</button>
+              //   <p className='white-text'></p>
+              // </div>
+              <Card sx={{ maxWidth: 345, boxShadow: 10 }}>
+
+                <CardMedia
+                  component="img"
+                  height="140"
+                  image={item.gifLink}
+                  alt="gif"
+                />
+                <CardContent>               
+                  <Typography align="left" gutterBottom variant="h5" component="div">
+                    ☑{item.votes.toString()}
+                  </Typography>  
+                  <Typography variant="body" color="text.secondary">
+                    {item.userAddress.toString()}
+                  </Typography>                
+                </CardContent>
+                <CardActions>
+                  <Button size="large" variant="outlined" onClick={() => {vote(item.gifLink)}}>👍</Button>
+                  <Button size="small" variant="outlined" onClick={() => {sendSol(item.userAddress)}}>Tip 0.01 SOL</Button>
+                </CardActions>
+              </Card>
             ))}
           </div>
         </div>)
