@@ -209,20 +209,21 @@ const App = () => {
               //   <button key="tip" className='cta-button submit-gif-button' onClick={() => {sendSol(item.userAddress)}}>Tip 0.01 SOL</button>
               //   <p className='white-text'></p>
               // </div>
-              <Card sx={{ maxWidth: 345, boxShadow: 10 }}>
+              <Card sx={{ maxWidth: 1, boxShadow: 10 }}>
 
-                <CardMedia
+                <CardMedia 
                   component="img"
-                  height="140"
+                  height="auto"
+                  width="auto"
                   image={item.gifLink}
                   alt="gif"
                 />
                 <CardContent>               
                   <Typography align="left" gutterBottom variant="h5" component="div">
-                    ☑{item.votes.toString()}
+                  💌{item.votes.toString()}
                   </Typography>  
                   <Typography variant="body" color="text.secondary">
-                    {item.userAddress.toString()}
+                    Owner:{" " + item.userAddress.toString()}
                   </Typography>                
                 </CardContent>
                 <CardActions>
@@ -274,11 +275,11 @@ const App = () => {
     <div className="App">
       <div className={walletAddress ? 'authed-container' : "container"}>
         <div className="header-container">
-          <p className="header">🖼 Surfing GIF Portal</p>
+          <p className="header">🖼 🏄‍♂️ Surfing GIF Portal</p>
           <p className="sub-text">
             View your GIF collection in the metaverse ✨
-          </p>
-          {!walletAddress ? renderNotConnectedContainer() : renderConnectedContainer()}
+          </p>  
+          {!walletAddress ? renderNotConnectedContainer() : renderConnectedContainer()}       
         </div>
         <div className="footer-container">
           <img alt="Twitter Logo" className="twitter-logo" src={profilepic} />
