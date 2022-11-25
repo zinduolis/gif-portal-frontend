@@ -3,7 +3,6 @@ import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
-import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Unstable_Grid2';
 import { Connection, clusterApiUrl, PublicKey, Transaction } from '@solana/web3.js';
@@ -193,43 +192,37 @@ const App = () => {
             }} >
               <input 
                 type="text" 
-                placeholder="Enter gif link"
+                placeholder="Enter Surfing GIF link"
                 value={inputValue}
                 onChange={onInputChange} 
               />
               <button type="submit" className='cta-button submit-gif-button'>Submit</button>
             </form>
-            <Grid container rowSpacing={2} columnSpacing={{ xs: 2, sm: 3, md: 4 }}>
+            <Grid key="overarchingGrid" container spacing={ 6 } mdOffset={ 1.5 }>
               {gifList.map((item, index) => (
-              // <div className='gif-item' key={index}>
-              //   <img src={item.gifLink} alt=""/>
-              //   <p className="white-text">Owner:{" " + item.userAddress.toString()}</p>
-              //   <p className='white-text'>Votes:{" " + item.votes.toString()}</p>
-              //   <button key="vote" className='cta-button submit-gif-button' onClick={() => {vote(item.gifLink)}}>Vote</button>
-              //   <p className='white-text'></p>
-              //   <button key="tip" className='cta-button submit-gif-button' onClick={() => {sendSol(item.userAddress)}}>Tip 0.01 SOL</button>
-              //   <p className='white-text'></p>
-              // </div>
-                <Grid xs={5}>
-                  <Card sx={{ maxWidth: 0.7, boxShadow: 20 }}>
-                    <CardMedia 
-                      component="img"
-                      width="10%"
-                      height="auto"
+                <Grid key={"GridItem" + index} xs={5}>
+                  <Card sx={{ boxShadow: 20, border: '2px solid', borderRadius: '10px' }}>
+                    <CardMedia key="media"
+                      component="img"                     
+                      height="300"
                       image={item.gifLink}
                       alt="gif"
                     />
-                    <CardContent>               
-                      <Typography align="left" gutterBottom variant="h5" component="div">
+                    <CardContent key="content">               
+                      <Typography key="votes" align="left" gutterBottom variant="h5" component="div">
                       💌{item.votes.toString()}
                       </Typography>  
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography key="owner" variant="caption" color="text.secondary">
                         Owner:{" " + item.userAddress.toString()}
                       </Typography>                
                     </CardContent>
-                    <CardActions sx={{ bgcolor: "#E8E8E8" }}>
-                      <Button size="large" variant="contained" onClick={() => {vote(item.gifLink)}}>👍</Button>
-                      <Button size="small" variant="contained" onClick={() => {sendSol(item.userAddress)}}>Tip 0.01 SOL</Button>
+                    <CardActions key="buttons" sx={{ bgcolor: "#E8E8E8" }}>                     
+                      <button key="vote" className='cta-button submit-gif-button' onClick={() => {vote(item.gifLink)}}>
+                        👍
+                      </button>
+                      <button key="tip" className='cta-button submit-gif-button' onClick={() => {sendSol(item.userAddress)}}>
+                        Tip 0.01 SOL
+                      </button>
                     </CardActions>
                   </Card>
                 </Grid>
