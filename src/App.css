@@ -64,6 +64,11 @@
   background-size: 200% 200%;
   animation: gradient-animation 4s ease infinite;
   margin-left: 10px;
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+.submit-gif-button:hover {
+  background: -webkit-linear-gradient(left, #ce4490, #4335e2);
 }
 
 .footer-container {
@@ -81,6 +86,7 @@
   width: 35px;
   height: 35px;
   border-radius: 10px;
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
 }
 
 .footer-text {

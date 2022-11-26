@@ -5,6 +5,7 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Unstable_Grid2';
+import LinearProgress from '@mui/material/LinearProgress';
 import { Connection, clusterApiUrl, PublicKey, Transaction } from '@solana/web3.js';
 import { Program, Provider, web3 } from '@project-serum/anchor';
 import kp from './keypair.json';
@@ -27,9 +28,10 @@ const App = () => {
   const [walletAddress, setWalletAddresss] = useState(null);
   const [inputValue, setInputValue] = useState('');
   const [gifList, setGifList] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const checkIfWalletIsConnected = async () => {
-    if (window?.solana?.isPhantom) {
+    if (window?.solana?.isPhantom) {     
       console.log('Phantom wallet found!');
       const response = await window.solana.connect({ onlyIfTrusted: true });
       console.log('Connected with Public Key:', response.publicKey.toString());
@@ -54,6 +56,7 @@ const App = () => {
       console.log("No gif link given!");
       return
     }
+    setLoading(true);
     setInputValue("");
     console.log("Gif link: ", inputValue);
     try {
@@ -68,13 +71,16 @@ const App = () => {
       });
       console.log("GIF successfully sent to program: ", inputValue)
       await getGifList();
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.log("Error sending GIF: ", error)
     }
   };
 
   const vote = async (gifId) => {
     try {
+      setLoading(true);
       const provider = getProvider();
       const program = await getProgram();
 
@@ -86,7 +92,9 @@ const App = () => {
       });
       console.log("Successful voting on: ", gifId)
       await getGifList();
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.log("Error voting: ", error)
     }
   };
@@ -96,6 +104,7 @@ const App = () => {
   const sendSol = async (to) => {
 
     try {
+      setLoading(true);
      const receiver = new PublicKey(to);
      const provider = getProvider();
      const connection = new Connection(network, opts.preflightCommitment);
@@ -123,9 +132,11 @@ const App = () => {
         connection.confirmTransaction(id)
         .then((confirmation) => {
             console.log(`Confirmation slot: ${confirmation.context.slot}`);
-        });
+            setLoading(false);
+        });      
       });
     } catch (error) {
+      setLoading(false);
       console.log("Error sending SOL: ", error);
     }
   }
@@ -145,6 +156,7 @@ const App = () => {
 
   const createGifAccount = async () => {
     try {
+      setLoading(true);
       const provider = getProvider();
       const program = await getProgram();
 
@@ -159,7 +171,9 @@ const App = () => {
       });
       console.log("Created a new BaseAccount w/ address: ", baseAccount.publicKey.toString());
       await getGifList();
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.log("Error creating BaseAccount account: ", error);
     }
   };
@@ -184,7 +198,7 @@ const App = () => {
       )
     } else {
       return(
-        <div className='connected-container'>
+        <div className='connected-container'>              
           <form
             onSubmit={(event) => {
               event.preventDefault();
@@ -225,6 +239,7 @@ const App = () => {
                       </button>
                     </CardActions>
                   </Card>
+                  {loading && <LinearProgress />}
                 </Grid>
             ))}
           </Grid>
@@ -239,12 +254,15 @@ const App = () => {
 
   const getGifList = async () => {
     try {
+      setLoading(true);
       const program = await getProgram();
       const account = await program.account.baseAccount.fetch(baseAccount.publicKey);
 
       console.log("Got the account: ", account);
       setGifList(account.gifList);
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.log("Error in getGifList: ", error);
       setGifList(null);
     }
@@ -268,11 +286,12 @@ const App = () => {
 
   return (
     <div className="App">
+      {loading && <LinearProgress />}
       <div className={walletAddress ? 'authed-container' : "container"}>
         <div className="header-container">
           <p className="header">🖼 🏄‍♂️ Surfing GIF Portal</p>
           <p className="sub-text">
-            View your GIF collection in the metaverse ✨
+            Enter GIF link or vote or tip your fave ✨
           </p>  
           {!walletAddress ? renderNotConnectedContainer() : renderConnectedContainer()}       
         </div>
