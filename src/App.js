@@ -8,12 +8,13 @@ import Grid from '@mui/material/Unstable_Grid2';
 import LinearProgress from '@mui/material/LinearProgress';
 import { Connection, clusterApiUrl, PublicKey, Transaction } from '@solana/web3.js';
 import { Program, Provider, web3 } from '@project-serum/anchor';
-import kp from './keypair.json';
+// import kp from './keypair.json';
 import profilepic from './assets/profilepic.webp';
 import './App.css';
 
 const { SystemProgram } = web3;
-const arr = Object.values(kp._keypair.secretKey);
+// const arr = Object.values(kp._keypair.secretKey);
+const arr = Object.values(JSON.parse(process.env.REACT_APP_SOLANA_KEYPAIR)._keypair.secretKey);
 const secret = new Uint8Array(arr);
 const baseAccount = web3.Keypair.fromSecretKey(secret);
 const programID = new PublicKey("7nZERk2LZF1bJDQzV4H2VaoYxLQ5uivr7xagMVvsuQ8X");
